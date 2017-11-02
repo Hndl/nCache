@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+example: {"key":"xx","ttl":-1","mimeType":"application/xml","data":"hello world"}
+
+<form method='get' action="/wCache/put">
+  key:<br>
+  <input type="text" name="key" value="1">
+  <br>
+  ttl:<br>
+  <input type="text" name="ttl" value="90000">
+  <br><br>
+  mimeType:<br>
+  <input type="text" name="mimeType" value="application/string">
+  <br><br>
+  Data:<br>
+  <input type="text" name="data" value="this is a good example message">
+  <br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+<p>If you click the "Submit" button, the form-data will be sent to a page called "/action_page.php".</p>
+
+
+<form method='post' action="/wCache/put">
+  key:<br>
+  <input type="text" name="key" value="1">
+  <br>
+  ttl:<br>
+  <input type="text" name="ttl" value="90000">
+  <br><br>
+  mimeType:<br>
+  <input type="text" name="mimeType" value="application/string">
+  <br><br>
+  Data:<br>
+  <input type="text" name="data" value="this is a good example message">
+  <br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+p.typewriter {
+  overflow: hidden; /* Ensures the content is not revealed until the animation */
+
+  white-space: nowrap; /* Keeps the content on a single line */
+  margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+  letter-spacing: .15em; /* Adjust as needed */
+  font-family:Courier New;
+  font-size: 8pt;
+  animation: 
+    typing 3.5s steps(40, end)
+
+}
+
+/* The typing effect */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: orange; }
+}
+
+
+
+
+
+
+
+
+/* Style the top navigation bar */
+.topnav {
+    overflow: hidden;
+    background-color: #333;
+}
+
+/* Style the topnav links */
+.topnav a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* Change color on hover 
+background-color: #black;*/
+.topnav a:hover {
+    
+    color: black;
+}
+
+/* Style the content */
+/*  background-color: #white;
+ height:500px;
+ */
+.content {
+  
+    padding: 10px;
+   height: 500px;
+    
+}
+
+/* Style the footer 
+background-color: #blue;*/
+.footer {
+    
+    padding: 10px;
+}
+
+
+/*background: #white;*/
+div.messages {
+    margin-left: 1em;
+    border: 1px solid;
+    height: 50%;
+    width: 90%;
+    height: 500px;
+    padding: 12px;
+    border-color: black;
+    
+    overflow: hidden;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+    border-top-right-radius: 1em;
+    border-top-left-radius: 1em;
+}
+
+/*
+ background-color: white;
+*/
+input {
+    outline: none;
+    border: none;
+   
+    color: #0F0;
+    padding: 1em .5em;
+    display: block;
+    font-size: 1em;
+    -webkit-box-flex: 1;
+    -webkit-flex-grow: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+}
+
+form {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*
+ background-color: black;
+*/
+body {
+   
+    color: #0F0;
+    font-family: verdana;
+}
+
+body input,
+body label {
+    display: block;
+}
+
+h1 {
+    text-align: center;
+}
+
+
+
+
+label {
+    display: block;
+    padding: 1em .5em;
+    font-size: 1.5em;
+}
+
+
+
+
