@@ -325,18 +325,18 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
  	/* 
   	 * Hook into the control-c... allows us to do some clean up...
   	 */
-	var rl  = readline.createInterface( process.stdin, process.stdout);
+	//var rl  = readline.createInterface( process.stdin, process.stdout);
 	
 	/*
 	 * CTRL-C - causes this to fire and exit the app clean.... 
 	 */
-	rl.on( EVT[EVT_FS_SIGINT], function ( stdin ){
+	//rl.on( EVT[EVT_FS_SIGINT], function ( stdin ){
 		/*
 		 * TODO put clean up code in here
 		 */
-		util.log(`CTRL-C evt recevied for ${APPNAME}.  Terminating...`);
-		process.exit(0);
-	});
+		//util.log(`CTRL-C evt recevied for ${APPNAME}.  Terminating...`);
+		//process.exit(0);
+	//});
 
 	/*
 	 * setup express 
