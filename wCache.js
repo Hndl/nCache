@@ -12,7 +12,7 @@ const bodyParser		= require('body-parser');
 
 // Customer internal
 
-const nCache 			= require('./lib/ncache.js');
+const nCache 			= require('./lib/nCache.js');
 
 const LISTEN_PORT						= 5000;	
 const LISTEN_PORT_WS					= 5001;
