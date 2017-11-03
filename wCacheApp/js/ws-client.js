@@ -1,8 +1,5 @@
 
-//var ws = new WebSocket("ws://192.168.1.81:3000");
-//var ws = new WebSocket("ws://clives-macbook-air.local:3000");
-var ws = new WebSocket("ws://10.182.131.139:5001");
-
+var ws = new WebSocket("ws://"+window.location.hostname+':5001');
 ws.onopen = function() {
 	setTitle("Requesting connection to 192.168.1.81 @3000");
 };
