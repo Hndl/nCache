@@ -149,7 +149,8 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
  			res.contentType('application/json');
  			var cObj = oCache.get(cacheKey);
  			if ( cObj == null){
- 				res.send (makeJSONResponse(0,cacheKey,null,null,false));
+ 				console.dir(makeJSONResponse(1,cacheKey,null,null,false));
+ 				res.send (makeJSONResponse(1,cacheKey,null,null,false));
  			} else{
  				if ( cObj.expired === true ){
 					DATA_POINTS[DP_G_REQUEST_HITSEXPIRE]++;
