@@ -25,19 +25,28 @@ const PUBLICDIR							= 'wCacheApp';
 const currentDir						= '.';
 const CMD_CACHE_GET						= 'get';
 const CMD_CACHE_PUT						= 'put';
+const CMD_CACHE_KEYS					= 'keys';
+const CMD_CACHE_REMOVE					= 'remove';
 const CMD_CACHE_STDOUT					= 'whats_in';
 const CMD_CACHE_TRUNC					= 'cache_purge';
 const CMD_CACHE_DUMP					= 'cache_dump';
 const CMD_CACHE_SEED					= 'cache_seed';
 
 
-const DATA_POINTS						=	[0,0,0,0,0,0];
+const DATA_POINTS						=	[0,0,0,0,0,0,0,0,0];
 const DP_G_REQUEST						=	0;
 const DP_G_REQUEST_HITS					=	1;
 const DP_P_REQUEST						=	2;
 const DP_STDIO_REQUEST					=	3;
 const DP_POST_ERRORS					=	4;
 const DP_G_REQUEST_HITSEXPIRE			=	5;
+const DP_G_REQUEST_REMOVE				=	6; // IMP 001
+const DP_G_REQUEST_GETKEYS				=	7; // IMP 001
+const DP_G_CACHESIZE					=	8; // IMP 001
+
+const HTTP_OK							= 200;
+const HTTP_ERR							= 404;
+const HTTP_IATP							= 418;
 
 
 
@@ -72,6 +81,7 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
 				try{
 					util.log('seeding core cache');
 					oCache.seedCache();
+					DATA_POINTS[DP_G_CACHESIZE] = oCache.size();
 					util.log('seeding core cache - completed. Items Seeded:' + oCache.size());
 					res.contentType('application/json');
 					res.send (makeJSONResponse(0,'cache dumped','','',''));
@@ -97,6 +107,32 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
 					res.send (makeJSONResponse(902,'cache seed err','','',''));
 				}
 				break;
+			case  CMD_CACHE_KEYS:
+				/** 
+				 * IMP1 - Fetch the Keys in the Cache.
+				 * WIP
+				 */
+				try{
+					//console.dir(req);
+					DATA_POINTS[DP_G_REQUEST_GETKEYS]++;
+					hdnleCacheKeys(req,res);
+				} catch (err) {
+					util.log(`ERROR Processing POST::${CMD_CACHE_KEYS} [${err}] - ${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);	
+				}
+				break;
+			case CMD_CACHE_REMOVE:
+				/** 
+				 * IMP1 - Fetch the Keys in the Cache.
+				 * WIP
+				 */
+				try{
+					DATA_POINTS[DP_G_REQUEST_REMOVE]++;
+			        hdnleRemoveCacheKeys(req,res);		
+					DATA_POINTS[DP_G_CACHESIZE] = oCache.size();
+				} catch (err){
+					util.log(`ERROR Processing POST::${CMD_CACHE_REMOVE} [${err}] - ${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);	
+				}
+				break
 			case CMD_CACHE_GET:
 				DATA_POINTS[DP_G_REQUEST]++;
 				/* invoke the get object from cache and render the response */
@@ -111,6 +147,7 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
 				try{
 					oCache.cleanAll();
 					renderCacheToStout( oCache );
+					DATA_POINTS[DP_G_CACHESIZE] = oCache.size();
 					res.send(oCache.toString());
 				} catch ( err ){
 					util.log(`ERROR Processing POST::${CMD_CACHE_PUT} [${err}] - ${req.method} request for '${req.url}' - ${JSON.stringify(req.body)}`);
@@ -129,6 +166,8 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
 				/* invoke the put object from cache and render the response */
 				try{
 					hndleCachePut(req,res);
+					DATA_POINTS[DP_G_CACHESIZE] = oCache.size();
+			          			
 				} catch (err){
 					util.log(`ERROR Processing POST::${CMD_CACHE_PUT} [${err}] - ${req.method} request for '${req.url}' - Body:${req.body}`);
 					DATA_POINTS[DP_POST_ERRORS]++;
@@ -138,6 +177,46 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
 			break;
 
 		}
+ 	}
+
+
+ 	function hdnleCacheKeys( req, res ) {
+ 		res.contentType('application/json');
+ 		try{
+ 			//let cacheKey	= req.param('key', null);  					// get the key,if null then we will use getKeys, otherwise we will getKeysLike
+ 			let keys = null;
+ 			//if ( cacheKey === null ){
+ 				keys = oCache.getKeys();
+ 			//} else {
+			//	keys = oCache.getKeys();
+ 			//}
+ 			console.dir(keys);
+ 			//function 				  makeJSONResponse(errCode, errDesc,mimeType,data , found){
+ 			res.status( HTTP_OK).send(makeJSONResponse(0,`getKeys:`,'application/json',JSON.stringify(keys),true));
+ 		} catch (err){
+ 			res.status( HTTP_OK).send(makeJSONResponse(1,`${err} - getKeys:`,'application/json','',false));	
+ 		}
+ 	}
+
+ 	function hdnleRemoveCacheKeys(req,res){
+ 		try{
+ 			var cacheKey	= req.param('key', null);  					// get the key
+ 			console.log(`hdnleRemoveCacheKeys::${cacheKey}`);
+ 			if ( cacheKey === null ){
+ 				throw new Error('invalid param:key not supplied');
+ 			}
+ 			res.contentType('application/json');
+ 			if ( oCache.remove(cacheKey) ) {
+ 				// key removed
+ 				res.send (makeJSONResponse(0,cacheKey,'','',true));
+ 			} else {
+ 				// failed to remove key
+ 				res.send (makeJSONResponse(1,cacheKey,'','',false));
+ 			}
+ 		} catch (err){
+ 			throw (err);
+ 		}
+
  	}
  	
  	function hndleCacheGet(req,res){
@@ -280,30 +359,39 @@ const DP_G_REQUEST_HITSEXPIRE			=	5;
 			{
 			    type: 'bar',
 			    data: {
-			        labels: ["Cache::PUSH", "Cache::FETCH", "Cache::HIT","Cache::HIT-EXPIRE", "Cache::QUERY", "Cache:ERR"],
+			        labels: ["Cache::PUSH", "Cache::FETCH","Cache::Remove","Cache::GetKey","Cache::Size", "Cache::HIT","Cache::HIT-EXPIRE", "Cache::QUERY", "Cache:ERR"],
 			        datasets: [{
 			            label: '# of',
 			            data: [	DATA_POINTS[DP_P_REQUEST],
 			            		DATA_POINTS[DP_G_REQUEST],
+			          			DATA_POINTS[DP_G_REQUEST_REMOVE],
+			          			DATA_POINTS[DP_G_REQUEST_GETKEYS],
+			          			DATA_POINTS[DP_G_CACHESIZE],
 			            		DATA_POINTS[DP_G_REQUEST_HITS],
 			            		DATA_POINTS[DP_G_REQUEST_HITSEXPIRE],
 			            		DATA_POINTS[DP_STDIO_REQUEST],
 			            		DATA_POINTS[DP_POST_ERRORS]],
 			            backgroundColor: [
-			                'rgba(255, 99, 132, 0.2)',
-			                'rgba(54, 162, 235, 0.2)',
-			                'rgba(255, 206, 86, 0.2)',
-			                'rgba(75, 192, 192, 0.2)',
-			                'rgba(153, 102, 255, 0.2)',
-			                'rgba(255, 159, 64, 0.2)'
+			                'rgba(255,99,  132, 0.2)',  // Put
+			                'rgba(54, 162, 235, 0.2)',	// Get
+			                'rgba(58, 46 , 242, 0.2)',  // Remove : New IMP001
+			                'rgba(249,101, 32 , 0.2)',	// Keys : New IMP001
+			                'rgba(94, 249, 32 , 0.2)',	// Cache Size : New IMP001
+			                'rgba(255,206, 86 , 0.2)',	// Hit
+			                'rgba(75, 192, 192, 0.2)',	// Hit Expire
+			                'rgba(153,102, 255, 0.2)',	// Std Out
+			                'rgba(255,159, 64 , 0.2)'	// Post Err
 			            ],
 			            borderColor: [
-			                'rgba(255,99,132,1)',
-			                'rgba(54, 162, 235, 1)',
-			                'rgba(255, 206, 86, 1)',
-			                'rgba(75, 192, 192, 1)',
-			                'rgba(153, 102, 255, 1)',
-			                'rgba(255, 159, 64, 1)'
+			                'rgba(255, 99 , 132, 1 )',		// Put
+			                'rgba(54 , 162, 235, 1)',		// Get
+			                'rgba(58 , 46 , 242, 1)',		// Remove
+ 							'rgba(249,101, 32 ,  1)',		// Keys : New IMP001
+			                'rgba(94, 249, 32 ,  1)',		// Cache Size : New IMP001
+			                'rgba(255, 206, 86 , 1)',		// Hit
+			                'rgba(75 , 192, 192, 1)',		// Expire Hit
+			                'rgba(153, 102, 255, 1)',		// STD Out
+			                'rgba(255, 159, 64 , 1)'		// POST ERR
 			            ],
 			            borderWidth: 1
 			        }]
