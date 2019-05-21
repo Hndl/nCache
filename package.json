@@ -4,7 +4,7 @@
   "description": "simple cache",
   "main": "ncache",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "author": "cgb",
   "license": "MIT",
